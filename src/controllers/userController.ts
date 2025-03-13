@@ -36,3 +36,22 @@ export const registerUser = async (request: FastifyRequest, reply: FastifyReply)
   }
 };
 
+// Função para buscar dados do usuário autenticado
+export const getUserData = async (request: FastifyRequest, reply: FastifyReply) => {
+    const userId = (request.user as {id: string}).id;
+    
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true, role: true, picture: true, job: true, createdAt: true },
+      });
+  
+      if (!user) {
+        return reply.status(404).send({ message: 'Usuário não encontrado.' });
+      }
+  
+      return reply.send(user);
+    } catch (error) {
+      return reply.status(500).send({ message: 'Erro ao buscar dados do usuário.' });
+    }
+  };
