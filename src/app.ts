@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import cookie from "@fastify/cookie";
 import "dotenv/config"
+import router from './routes/router'
 
 const app = Fastify({ logger: true });
 
@@ -36,7 +37,6 @@ app.decorate("authenticate", async function (request: FastifyRequest, reply: Fas
   }
 });
 
-// Registrar todas as rotas
-// app.register(router);
+app.register(router);
 
 export default app;
