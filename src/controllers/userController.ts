@@ -55,3 +55,23 @@ export const getUserData = async (request: FastifyRequest, reply: FastifyReply) 
       return reply.status(500).send({ message: 'Erro ao buscar dados do usuário.' });
     }
   };
+
+  export const getUserById = async (request: FastifyRequest<{
+    Params: { id: string }
+  }>, reply: FastifyReply) => {
+    try {
+      const id = String(request.params.id);
+      const user = await prisma.user.findUnique({
+        where: { id }, 
+        select: { name: true, email: true, role: true, picture: true, job: true, createdAt: true },
+      });
+  
+      if (!user) {
+        return reply.status(404).send({ message: 'Usuário não encontrado.' });
+      }
+  
+      return reply.send(user);
+    } catch (error) {
+      return reply.status(500).send({ message: 'Erro ao buscar dados do usuário.' });
+    }
+  };
