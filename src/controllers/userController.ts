@@ -38,7 +38,7 @@ export const registerUser = async (request: FastifyRequest, reply: FastifyReply)
 
 // Função para buscar dados do usuário autenticado
 export const getUserData = async (request: FastifyRequest, reply: FastifyReply) => {
-    const userId = (request.user as {id: string}).id;
+    const userId = (request.user as {id: number}).id;
     
     try {
       const user = await prisma.user.findUnique({
@@ -57,12 +57,19 @@ export const getUserData = async (request: FastifyRequest, reply: FastifyReply) 
   };
 
   export const getUserById = async (request: FastifyRequest<{
-    Params: { id: string }
+    Params: { id: number }
   }>, reply: FastifyReply) => {
     try {
-      const id = String(request.params.id);
+      // Usar Number() para garantir que o ID seja convertido para número
+      const id = Number(request.params.id);
+  
+      // Verifica se o ID foi convertido corretamente
+      if (isNaN(id)) {
+        return reply.status(400).send({ message: 'ID inválido.' });
+      }
+  
       const user = await prisma.user.findUnique({
-        where: { id }, 
+        where: { id },
         select: { name: true, email: true, role: true, picture: true, job: true, createdAt: true },
       });
   
