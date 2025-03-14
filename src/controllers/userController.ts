@@ -144,29 +144,43 @@ interface loginRequest {
 }
 
 export const login = async (
-  request: FastifyRequest<loginRequest>,
+  request: FastifyRequest<{ Body: { email: string; password: string } }>,
   reply: FastifyReply
 ) => {
   const { email, password } = request.body;
   try {
     const user = await prisma.user.findUnique({
-      where: { email: email },
+      where: { email },
     });
 
     if (!user) {
-      return reply.status(404).send({ message: "Credenciais invalidas." });
+      return reply.status(404).send({ message: "Credenciais inválidas." });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return reply.status(401).send({ message: "Credenciais Invalidas." });
+      return reply.status(401).send({ message: "Credenciais inválidas." });
     }
 
-    const token = await reply.jwtSign({ id: user.id, email: user.email }, {expiresIn: "1H"});
+    // Gerando o token JWT
+    const token = await reply.jwtSign(
+      { id: user.id, email: user.email },
+      { expiresIn: "1h" }
+    );
 
-    reply.send(token);
+    // Salva token cookie HTTP-only
+    reply.setCookie("token", token, {
+      httpOnly: true, // Protege contra XSS
+      secure: false, // Em produção, mude para true (apenas HTTPS)
+      sameSite: "strict", // Protege contra CSRF
+      path: "/", // Disponível em todas as rotas do site
+      maxAge: 60 * 60, // Expira em 1 hora (segundos)
+    });
+
+    return reply.send({ message: "Login bem-sucedido" });
   } catch (error) {
-    reply.status(500).send({ message: "Failed to login (CATCH)" });
+    console.error(error);
+    reply.status(500).send({ message: "Erro ao fazer login." });
   }
 };
 
