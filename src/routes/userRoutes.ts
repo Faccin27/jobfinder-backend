@@ -3,12 +3,14 @@ import {
   registerUser,
   getUserData,
   getUserById,
-  getAllUsers
+  getAllUsers,
+  login
 } from "../controllers/userController";
 
 export default async function userRoutes(app: FastifyInstance) {
   // Rotas estáticas
   app.post("/register", registerUser);
+  app.post("/login", login)
   app.get("/", getAllUsers);
   // app.get('/me', {preHandler: [app.authenticate]}, getUserData)
   
