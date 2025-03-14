@@ -162,10 +162,47 @@ export const login = async (
       return reply.status(401).send({ message: "Credenciais Invalidas." });
     }
 
-    const token = await reply.jwtSign({ id: user.id, email: user.email });
+    const token = await reply.jwtSign({ id: user.id, email: user.email }, {expiresIn: "1H"});
 
     reply.send(token);
   } catch (error) {
     reply.status(500).send({ message: "Failed to login (CATCH)" });
+  }
+};
+
+interface JwtPayload {
+  id: number; 
+  email: string;
+}
+
+export const getLoggedUser = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const decodedToken = await request.jwtVerify<JwtPayload>(); 
+
+    const userIdFromToken = decodedToken.id; 
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userIdFromToken },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        picture: true,
+        job: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return reply.status(404).send({ message: "Usuário não encontrado" });
+    }
+
+    reply.send(user);
+  } catch (error) {
+    reply.status(401).send({ message: "Token inválido ou expirado" });
   }
 };
