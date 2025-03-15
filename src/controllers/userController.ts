@@ -14,6 +14,7 @@ export const registerUser = async (
     password: z.string().min(6),
     role: z.enum(["CLIENTE", "PRESTADOR", "ADMIN"]).default("CLIENTE"),
     picture: z.string().optional(),
+    phone: z.string().optional(),
     job: z.string().optional(),
   });
 
@@ -58,6 +59,7 @@ export const getUserData = async (
         role: true,
         picture: true,
         job: true,
+        phone: true,
         createdAt: true,
       },
     });
@@ -96,6 +98,7 @@ export const getUserById = async (
         email: true,
         role: true,
         picture: true,
+        phone: true,
         job: true,
         createdAt: true,
       },
@@ -125,6 +128,7 @@ export const getAllUsers = async (
         email: true,
         role: true,
         picture: true,
+        phone: true,
         job: true,
         createdAt: true,
       },
@@ -206,6 +210,7 @@ export const getLoggedUser = async (
         email: true,
         role: true,
         picture: true,
+        phone: true,
         job: true,
         createdAt: true,
       },
