@@ -193,6 +193,15 @@ interface JwtPayload {
   email: string;
 }
 
+interface UserUpdateData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  job?: string;
+  newPassword?: string;
+}
+
 export const getLoggedUser = async (
   request: FastifyRequest,
   reply: FastifyReply
@@ -234,3 +243,4 @@ export const logout = async (request: FastifyRequest, reply: FastifyReply) => {
     reply.status(401).send({ message: "Token inválido ou inexistente" });
   }
 };
+

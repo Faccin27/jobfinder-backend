@@ -13,6 +13,7 @@
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.0.0",
     "@fastify/jwt": "^9.0.4",
+    "@fastify/multipart": "^9.0.3",
     "@prisma/client": "^6.5.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
