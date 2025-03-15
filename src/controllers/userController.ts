@@ -189,7 +189,7 @@ export const login = async (
 };
 
 interface JwtPayload {
-  id: number; 
+  id: number;
   email: string;
 }
 
@@ -198,10 +198,10 @@ export const getLoggedUser = async (
   reply: FastifyReply
 ) => {
   try {
-    const decodedToken = await request.jwtVerify<JwtPayload>(); 
+    const decodedToken = await request.jwtVerify<JwtPayload>();
 
-    const userIdFromToken = decodedToken.id; 
-    
+    const userIdFromToken = decodedToken.id;
+
     const user = await prisma.user.findUnique({
       where: { id: userIdFromToken },
       select: {
@@ -223,5 +223,14 @@ export const getLoggedUser = async (
     reply.send(user);
   } catch (error) {
     reply.status(401).send({ message: "Token inválido ou expirado" });
+  }
+};
+
+export const logout = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    reply.clearCookie("token", { path: "/" });
+    reply.send({ success: true });
+  } catch (error) {
+    reply.status(401).send({ message: "Token inválido ou inexistente" });
   }
 };
