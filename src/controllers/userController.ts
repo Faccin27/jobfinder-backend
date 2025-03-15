@@ -200,6 +200,7 @@ interface UserUpdateData {
   role?: string;
   job?: string;
   newPassword?: string;
+  password: string;
 }
 
 export const getLoggedUser = async (
@@ -244,3 +245,69 @@ export const logout = async (request: FastifyRequest, reply: FastifyReply) => {
   }
 };
 
+export const updateUser = async (
+  request: FastifyRequest<{
+    Body: UserUpdateData & {
+      password?: string;
+      newPassword?: string;
+      role?: string;
+    };
+  }>,
+  reply: FastifyReply
+) => {
+  try {
+    const decodedToken = await request.jwtVerify<JwtPayload>();
+    const userIdFromToken = decodedToken.id;
+
+    const { password, newPassword, role, ...userData } = request.body;
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userIdFromToken },
+      select: { password: true },
+    });
+
+    if (!currentUser) {
+      return reply.status(404).send({ message: "User not found" });
+    }
+
+    if (!password) {
+      return reply
+        .status(400)
+        .send({ message: "Current password is required" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      currentUser.password
+    );
+    if (!isPasswordValid) {
+      return reply
+        .status(401)
+        .send({ message: "Current password is incorrect" });
+    }
+
+    const updatedData: any = { ...userData };
+
+    if (newPassword) {
+      updatedData.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    if (role) {
+      const validRoles = ["CLIENTE", "PRESTADOR", "ADMIN"] as const;
+      if (!validRoles.includes(role as any)) {
+        return reply.status(400).send({ message: "Invalid role" });
+      }
+      updatedData.role = role;
+    }
+
+    await prisma.user.update({
+      where: { id: userIdFromToken },
+      data: updatedData,
+    });
+
+    return reply.status(200).send({ message: "User updated successfully" });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return reply.status(500).send({ message: "Internal Server Error" });
+  }
+};

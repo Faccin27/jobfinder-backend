@@ -6,18 +6,20 @@ import {
   getAllUsers,
   login,
   getLoggedUser,
-  logout
+  logout,
+  updateUser,
 } from "../controllers/userController";
 
 export default async function userRoutes(app: FastifyInstance) {
   // Rotas estáticas
   app.post("/register", registerUser);
   app.post("/login", login);
-  app.post("/logout", logout)
+  app.post("/logout", logout);
   app.get("/s", getAllUsers);
   app.get("/me", getLoggedUser);
+  app.put("/update", updateUser);
   // app.get('/me', {preHandler: [app.authenticate]}, getUserData)
-  
+
   // Rotas dinâmicas abaixo
   app.get("/:id", getUserById);
 }
