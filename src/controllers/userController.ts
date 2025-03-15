@@ -270,25 +270,24 @@ export const updateUser = async (
       return reply.status(404).send({ message: "User not found" });
     }
 
-    if (!password) {
-      return reply
-        .status(400)
-        .send({ message: "Current password is required" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      currentUser.password
-    );
-    if (!isPasswordValid) {
-      return reply
-        .status(401)
-        .send({ message: "Current password is incorrect" });
-    }
-
     const updatedData: any = { ...userData };
 
     if (newPassword) {
+      if (!password) {
+        return reply
+          .status(400)
+          .send({ message: "Current password is required" });
+      }
+  
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        currentUser.password
+      );
+      if (!isPasswordValid) {
+        return reply
+          .status(401)
+          .send({ message: "Current password is incorrect" });
+      }
       updatedData.password = await bcrypt.hash(newPassword, 10);
     }
 
