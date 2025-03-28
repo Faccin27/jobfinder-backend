@@ -8,6 +8,7 @@ import {
   getLoggedUser,
   logout,
   updateUser,
+  getUsersByJob
 } from "../controllers/userController";
 
 export default async function userRoutes(app: FastifyInstance) {
@@ -15,7 +16,8 @@ export default async function userRoutes(app: FastifyInstance) {
   app.post("/register", registerUser);
   app.post("/login", login);
   app.post("/logout", logout);
-  app.get("/s", getAllUsers);
+  app.get("/", getAllUsers);
+  app.get("/by-job", getUsersByJob)
   app.get("/me", getLoggedUser);
   app.put("/update", updateUser);
   // app.get('/me', {preHandler: [app.authenticate]}, getUserData)

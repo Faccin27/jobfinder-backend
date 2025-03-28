@@ -76,6 +76,42 @@ export const getUserData = async (
   }
 };
 
+export const getUsersByJob = async (
+  request: FastifyRequest<{ Querystring: { job: string } }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { job } = request.query;
+
+    if (!job) {
+      return reply.status(400).send({ message: "Profissão é obrigatória." });
+    }
+
+    const users = await prisma.user.findMany({
+      where: { job },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        picture: true,
+        phone: true,
+        job: true,
+        createdAt: true,
+      },
+    });
+
+    if (users.length === 0) {
+      return reply.status(404).send({ message: "Nenhum usuário encontrado para essa profissão." });
+    }
+
+    return reply.send(users);
+  } catch (error) {
+    return reply.status(500).send({ message: "Erro ao buscar usuários por profissão." });
+  }
+};
+
+
 export const getUserById = async (
   request: FastifyRequest<{
     Params: { id: number };
